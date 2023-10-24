@@ -1,0 +1,40 @@
+{
+  "title": "Kino-Management Portal",
+  "username": "Benutzername",
+  "cashRegister": "Kassen",
+  "welcome": "Herzlich Willkommen",
+  "login": {
+    "authStates": {
+      "signinRedirect": "Sie werden zu Ihrem Identity Provider weitergeleitet...",
+      "signinPopup": "Bitte melden Sie sich im Popup an.",
+      "signinSilent": "Sie werden angemeldet...",
+      "signinResourceOwnerCredentials": "Sie werden angemeldet...",
+      "signoutRedirct": "Sie werden zu Ihrem Identity Provider weitergeleitet...",
+      "signoutPopup": "Sie werden in einem Popup abgemeldet.",
+      "signoutSilent": "Sie werden abgemeldet..."
+    },
+    "usingIDP": "Mit Ihrem IDP anmelden",
+    "loadingUserInfo": "Ihre Benutzerinformationen werden geladen...",
+    "error": "Während der Anmeldung ist ein Fehler aufgetreten",
+    "information": "Um das Management-Portal nutzen zu können, müssen Sie sich anmelden"
+  },
+  "hint": {
+    "currentIDP": "Aktueller Identity Provider:"
+  },
+  "cash-register": {
+    "errors": {
+      "general": "Es ist ein Fehler beim Laden der Artikel aufgetreten.<br>Bitte benutzen Sie lokale Artikel und kontaktieren Sie ihren Administrator.",
+      "no-items": "Keine Artikel auf dem Server gefunden.<br>Bitte benutzen Sie lokale Artikel oder fügen sie welche auf dem Server hinzu.",
+      "unexpected-response": "Unerwarteter Status Code erhalten.<br>Bitte benutzen Sie lokale Artikel."
+    },
+    "bill": {
+      "item-removed": "Artikel entfernt",
+      "title": "Bon",
+      "total": "Gesamtsumme",
+      "paid": "Bezahlt",
+      "clear": "Bon leeren"
+    },
+    "select-register": "Bitte wählen Sie eine Kasse aus",
+    "articles": "Artikel"
+  }
+}

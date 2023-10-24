@@ -1,0 +1,40 @@
+{
+  "title": "Cinema Management Platform",
+  "username": "Username",
+  "cashRegister": "Cash Registers",
+  "welcome": "Welcome",
+  "login": {
+    "authStates": {
+      "signinRedirect": "Redirecting you to your Identity Provider...",
+      "signinPopup": "Please login using the popup.",
+      "signinSilent": "Logging you in...",
+      "signinResourceOwnerCredentials": "Logging you in...",
+      "signoutRedirct": "Redirecting you to your Identity Provider...",
+      "signoutPopup": "Logging you out using a popup",
+      "signoutSilent": "Logging you out"
+    },
+    "error": "An error occurred while logging you in",
+    "loadingUserInfo": "Loading your information...",
+    "usingIDP": "Login using your IDP",
+    "information": "You need to authenticate yourself before using the management platform."
+  },
+  "hint": {
+    "currentIDP": "Currently configured IDP:"
+  },
+  "cash-register": {
+    "errors": {
+      "general": "An error occurred while loading the articles from the server.<br>Please use local items and contact your administrator.",
+      "no-items": "There are no items configured on the server.<br>Please use local items or add some to the server",
+      "unexpected-response": "Unexpected response code received.<br>Please use local items."
+    },
+    "bill": {
+      "item-removed": "Item removed from bill",
+      "title": "Bill",
+      "total": "Total",
+      "paid": "Paid",
+      "clear": "Clear Bill"
+    },
+    "select-register": "Please select a register",
+    "articles": "Articles"
+  }
+}
