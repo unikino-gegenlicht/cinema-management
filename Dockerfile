@@ -6,7 +6,7 @@ ENV REACT_APP_OIDC_CLIENT_ID=${OIDC_CLIENT_ID}
 COPY . /tmp/build
 WORKDIR /tmp/build
 RUN ls
-RUN npm install -g pnpm meta @angular/cli
+RUN npm install -g pnpm
 RUN pnpm install
 RUN pnpm run build
 
