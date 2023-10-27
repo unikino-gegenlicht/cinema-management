@@ -24,10 +24,12 @@ export default function CashRegister() {
     const [loadedArticles, setLoadedArticles] = useState(false);
     const [billItems, setBillItems] = useState<Article[]>([]);
     const [billTotal, setBillTotal] = useState(0.00);
-
+    const [enableBilling, setEnableBilling] = useState(false);
+    const [billId, setBillID] = useState<string|undefined>(undefined)
+    const [initialBillIdLoaded, setInitialBillIdLoaded] = useState(false);
     /*
-    now write some functions to pull data from the server
-     */
+        now write some functions to pull data from the server
+         */
 
     /**
      * This function pulls all available articles from the database
@@ -161,7 +163,6 @@ export default function CashRegister() {
         }
 
     }
-
     useEffect(() => {
         if (!loadedArticles) {
             pullArticles()
@@ -169,9 +170,72 @@ export default function CashRegister() {
         }
         if (!loadedRegisters) {
             pullRegisters()
-
         }
     })
+
+    // recalculate the bill total if anything changes in the items on the bill
+    useEffect(() => {
+        let sum = 0.00
+        billItems.forEach(({price}) => {
+            sum += price
+        })
+        setBillTotal(sum)
+    }, [billItems])
+
+    useEffect(() => {
+        if (currentRegister === "") {
+            return
+        }
+        // since a register has been set enable the billing functions
+        setEnableBilling(true)
+    }, [currentRegister])
+
+    useEffect(() => {
+        if (!initialBillIdLoaded && enableBilling) {
+            let storedBillId = localStorage.getItem("current-bill-id")
+            if (storedBillId) {
+                setInitialBillIdLoaded(true)
+                setBillID(storedBillId)
+                return
+            }
+            setCallingAPI(true)
+            axios
+                .post("/api/transactions/start", null, {responseType: "text"})
+                .then((response) => {
+                    if (response.status === 200) {
+                        localStorage.setItem("current-bill-id", response.data)
+                        setInitialBillIdLoaded(true)
+                        setBillID(response.data)
+                    }
+                })
+                .catch((error) => {
+                    console.log(error)
+                })
+                .then(() => {
+                    setCallingAPI(false)
+                })
+        }
+    }, [enableBilling, initialBillIdLoaded]);
+
+    function getNewBillId() {
+        if (initialBillIdLoaded && enableBilling) {
+            setCallingAPI(true)
+            axios
+                .post("/api/transactions/start", null, {responseType: "text"})
+                .then((response) => {
+                    if (response.status === 200) {
+                        localStorage.setItem("current-bill-id", response.data)
+                        setBillID(response.data)
+                    }
+                })
+                .catch((error) => {
+                    console.log(error)
+                })
+                .then(() => {
+                    setCallingAPI(false)
+                })
+        }
+    }
 
     function addItemToBill(article: Article) {
         let i = billItems.slice()
@@ -201,15 +265,6 @@ export default function CashRegister() {
             }
         })
     }
-
-    function getBillTotal(): number {
-        let sum = 0.00
-        billItems.forEach(({price}) => {
-            sum += price
-        })
-        return sum
-    }
-
     function processTransaction() {
         if (!billItems || !billItems.length) {
             console.warn("unable to process empty bill")
@@ -229,20 +284,18 @@ export default function CashRegister() {
         stats.forEach(({name, count}, article) => {
             description += `${count}x ${name} à ${article.price.toFixed(2)} €\n`
         })
-        // now calculate the bill amount once
-        let billAmount: number = 0.00
-        stats.forEach(({name, count}, article) => {
-            billAmount += count * article.price
-        })
         // now build the transaction
         let t: Transaction = {
-            amount: billAmount,
+            ID: billId,
+            amount: billTotal,
             at: new Date().toISOString(),
             title: "Verkauf",
             description: description,
-            register: currentRegister
+            register: currentRegister,
+            items: billItems.map((article) => article.id)
         }
-        // now send the transaction to the backend
+        // now send the transaction to the backend and store it locally in the local storage
+        localStorage.setItem(`transaction-${billId}`, JSON.stringify(t))
         axios
             .post("/api/transactions", t)
             .then((res) => {
@@ -257,12 +310,31 @@ export default function CashRegister() {
                             animate: {in: 'fadeIn', out: 'fadeOut'},
                         })
                         break
+                    default:
+                        toast({
+                            message: 'Fehler bim speichern der Transaktion',
+                            type: 'is-success',
+                            dismissible: false,
+                            position: "center",
+                            animate: {in: 'fadeIn', out: 'fadeOut'},
+                        })
                 }
+            })
+            .catch((err) => {
+                console.log(err)
+                toast({
+                    message: err.toString(),
+                    type: 'is-success',
+                    dismissible: false,
+                    position: "center",
+                    animate: {in: 'fadeIn', out: 'fadeOut'},
+                })
             })
             .finally(() => {
                 setCallingAPI(false)
                 setBillItems([])
             })
+        getNewBillId();
     }
 
     function updateRegister(event: React.ChangeEvent<HTMLSelectElement>) {
@@ -271,7 +343,7 @@ export default function CashRegister() {
     }
 
     return (
-        <div>
+        <div className={"has-navbar-fixed-top"}>
             <div className={"mt-1 px-1"}>
                 <div className={"buttons is-centered has-addons mb-1"}>
                     <button className={`button is-rounded is-link ${callingAPI ? 'is-loading' : ''}`}
@@ -294,74 +366,79 @@ export default function CashRegister() {
                         })}
                     </select>
                 </div>
-                {/* Now render the article list/buttons*/}
-                <h1 className={"title my-2 is-size-4 has-text-centered"}>
-                    {t(`cash-register.articles`)}
-                </h1>
-                <div className={"buttons is-centered mt-0"}>
-                    {
-                        articles.map((article) => {
-                            let {name, icon} = article
-                            return (
-                                <button className={"button is-info is-fullheight is-5 has-text-centered"}
-                                        onClick={() => addItemToBill(article)}
-                                        disabled={currentRegister === ""}>
+                <div className={enableBilling ? ' ': 'is-hidden'}>
+                    {/* Now render the article list/buttons*/}
+                    <h1 className={"title my-2 is-size-4 has-text-centered"}>
+                        {t(`cash-register.articles`)}
+                    </h1>
+                    <div className={"buttons is-centered mt-0"}>
+                        {
+                            articles.map((article) => {
+                                let {name, icon} = article
+                                return (
+                                    <button className={"button is-info is-fullheight is-5 has-text-centered"}
+                                            onClick={() => addItemToBill(article)}
+                                            disabled={currentRegister === ""}>
                                     <span className={"icon-text is-align-items-center"}>
                                         <span className={"icon"}>
                                             <Icon icon={icon} height={64}></Icon>
                                         </span>
                                         <span>{name}</span>
                                     </span>
-                                </button>
-                            );
-                        })
-                    }
-                </div>
-                <div>
-                    <h2 className={"subtitle is-size-4 has-text-centered my-1"}>
-                        {t(`cash-register.bill.title`)}
-                    </h2>
-                    <h3 className={"heading is-size-5 has-text-centered my-1"}>
-                        {t(`cash-register.bill.total`)}: {getBillTotal().toFixed(2)} €
-                    </h3>
-                    <div className={"buttons is-centered has-addons"}>
-                        <button className={`button is-success is-rounded ${callingAPI ? 'is-loading' : ''}`}
-                                disabled={currentRegister === ""}
-                                style={{width: "49%"}}
-                                onClick={() => processTransaction()}>
-                            {t(`cash-register.bill.paid`)}
-                        </button>
-                        <button className={`button is-warning is-rounded ${callingAPI ? 'is-loading' : ''}`}
-                                disabled={currentRegister === ""}
-                                style={{width: "49%"}}
-                                onClick={() => setBillItems([])}>
-                            {t(`cash-register.bill.clear`)}
-                        </button>
-                    </div>
-                    <div style={{overflowX: "hidden", overflowY: "auto"}}>
-                        {
-                            billItems.map(({name, price, icon}, idx) => {
-                                return (
-                                    <div className={"columns is-mobile is-gapless is-multiline my-2"}>
-                                        <div className={"column is-2 is-align-content-center has-text-centered"}>
-                                            <Icon width={48} icon={icon}></Icon>
-                                        </div>
-                                        <div className={"column is-8 is-6-mobile is-align-items-center"}>
-                                            <p className={"is-align-self-center"}>
-                                                <span className={"title is-size-5"}>{name}</span><br/>
-                                                <span className={"heading is-size-6"}>{price.toFixed(2)} €</span>
-                                            </p>
-                                        </div>
-                                        <div className={"column is-1 ml-2 is-align-content-center has-text-centered"}>
-                                            <button className={"button is-fullheight is-danger is-rounded"}
-                                                    onClick={() => removeItemFromBill(idx)}>
-                                                <Icon height={36} icon={"iwwa:delete"}></Icon>
-                                            </button>
-                                        </div>
-                                    </div>
+                                    </button>
                                 );
                             })
                         }
+                    </div>
+                    <div>
+                        <h2 className={"subtitle is-size-4 has-text-centered my-1"}>
+                            {t(`cash-register.bill.title`)}
+                        </h2>
+                        <h3 className={"heading is-size-5 has-text-centered my-1"}>
+                            {t(`cash-register.bill.total`)}: {billTotal.toFixed(2)} €
+                        </h3>
+                        <h4 className={"is-size-7 has-text-centered my-1"}>
+                            {t(`cash-register.bill.id`)}: {billId}
+                        </h4>
+                        <div className={"buttons is-centered has-addons"}>
+                            <button className={`button is-success is-rounded ${callingAPI ? 'is-loading' : ''}`}
+                                    disabled={currentRegister === ""}
+                                    style={{width: "49%"}}
+                                    onClick={() => processTransaction()}>
+                                {t(`cash-register.bill.paid`)}
+                            </button>
+                            <button className={`button is-warning is-rounded ${callingAPI ? 'is-loading' : ''}`}
+                                    disabled={currentRegister === ""}
+                                    style={{width: "49%"}}
+                                    onClick={() => setBillItems([])}>
+                                {t(`cash-register.bill.clear`)}
+                            </button>
+                        </div>
+                        <div style={{overflowX: "hidden", overflowY: "auto"}}>
+                            {
+                                billItems.map(({name, price, icon}, idx) => {
+                                    return (
+                                        <div className={"columns is-mobile is-gapless is-multiline my-2"}>
+                                            <div className={"column is-2 is-align-content-center has-text-centered"}>
+                                                <Icon width={48} icon={icon}></Icon>
+                                            </div>
+                                            <div className={"column is-8 is-6-mobile is-align-items-center"}>
+                                                <p className={"is-align-self-center"}>
+                                                    <span className={"title is-size-5"}>{name}</span><br/>
+                                                    <span className={"heading is-size-6"}>{price.toFixed(2)} €</span>
+                                                </p>
+                                            </div>
+                                            <div className={"column is-1 ml-2 is-align-content-center has-text-centered"}>
+                                                <button className={"button is-fullheight is-danger is-rounded"}
+                                                        onClick={() => removeItemFromBill(idx)}>
+                                                    <Icon height={36} icon={"iwwa:delete"}></Icon>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            }
+                        </div>
                     </div>
                 </div>
             </div>

@@ -4,5 +4,6 @@ export type Transaction = {
     amount: number,
     title: string,
     description: string,
-    register: string
+    register: string,
+    items?: string[]
 }

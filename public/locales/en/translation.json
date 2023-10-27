@@ -3,6 +3,10 @@
   "username": "Username",
   "cashRegister": "Cash Registers",
   "welcome": "Welcome",
+  "errors": {
+    "tokenRenewFailed": "Unable to renew your authentication details. You'll be logged out in one minute",
+    "tokenExpired": "Your access token has expired. Please reauthenticate."
+  },
   "login": {
     "authStates": {
       "signinRedirect": "Redirecting you to your Identity Provider...",
@@ -32,7 +36,8 @@
       "title": "Bill",
       "total": "Total",
       "paid": "Paid",
-      "clear": "Clear Bill"
+      "clear": "Clear Bill",
+      "id": "Bill ID"
     },
     "select-register": "Please select a register",
     "articles": "Articles"

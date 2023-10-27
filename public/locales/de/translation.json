@@ -3,6 +3,10 @@
   "username": "Benutzername",
   "cashRegister": "Kassen",
   "welcome": "Herzlich Willkommen",
+  "errors": {
+    "tokenRenewFailed": "Die Aktualisierung ihrer Authentifizierung ist fehlgeschlagen. Sie werden in einer Minute abgemeldet.",
+    "tokenExpired": "Ihre Anmeldedaten sind abgelaufen. Bitte authentifizieren sie sich erneut."
+  },
   "login": {
     "authStates": {
       "signinRedirect": "Sie werden zu Ihrem Identity Provider weitergeleitet...",
@@ -25,14 +29,15 @@
     "errors": {
       "general": "Es ist ein Fehler beim Laden der Artikel aufgetreten.<br>Bitte benutzen Sie lokale Artikel und kontaktieren Sie ihren Administrator.",
       "no-items": "Keine Artikel auf dem Server gefunden.<br>Bitte benutzen Sie lokale Artikel oder fügen sie welche auf dem Server hinzu.",
-      "unexpected-response": "Unerwarteter Status Code erhalten.<br>Bitte benutzen Sie lokale Artikel."
+      "unexpected-response": "Unerwarteter Status Code in Antwort.<br>"
     },
     "bill": {
       "item-removed": "Artikel entfernt",
       "title": "Bon",
       "total": "Gesamtsumme",
       "paid": "Bezahlt",
-      "clear": "Bon leeren"
+      "clear": "Bon leeren",
+      "id": "Bonnummer"
     },
     "select-register": "Bitte wählen Sie eine Kasse aus",
     "articles": "Artikel"

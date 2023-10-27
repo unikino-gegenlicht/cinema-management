@@ -14,7 +14,7 @@ export default function LandingPage() {
         return <Navigate to={"/login"}></Navigate>
     }
     return (
-        <div className={"p-1"}>
+        <div className={"p-1 has-navbar-fixed-top"}>
             <h1 className={"title has-text-centered mb-5"}>
                 {t("welcome")}, {user?.profile.name}
             </h1>

@@ -1,18 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.scss';
-import {User} from "oidc-client-ts";
+import {User, WebStorageStateStore} from "oidc-client-ts";
 import reportWebVitals from './reportWebVitals';
 
 import './i18n';
 import {AuthProvider} from "react-oidc-context";
 import axios from "axios";
-import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
-import Navigation from "./components/navigation";
-import LoginCallback from "./views/login-callback";
-import LandingPage from "./views/landing-page"
-import LoginPage from "./views/login";
-import CashRegister from "./views/cash-register";
+import {BrowserRouter as Router} from "react-router-dom";
+import App from "./App";
 
 /**
  * This part configures the OpenID Connect configuration for the 'react-oidc-context'
@@ -35,14 +31,14 @@ if (!oidcClientID) {
 const oidcConfig = {
     authority: oidcAuthority,
     client_id: oidcClientID,
-    redirect_uri: window.location.protocol + "//" + window.location.host + "/callback",
+    redirect_uri: window.location.protocol + "//" + window.location.host + "/",
     scope: "openid profile email",
     loadUserInfo: true,
+    automaticSilentRenew: true,
     onSigninCallback: (user: User | void) => {
-        console.log(user)
         window.history.replaceState({}, document.title, window.location.pathname)
-        window.location.replace("/")
-    }
+    },
+    userStore: new WebStorageStateStore({store: window.sessionStorage})
 }
 
 /**
@@ -54,22 +50,23 @@ axios
     .request
     .use(
         request => {
+
             // generate the session storage key to get the user information
             let userSessionStorageKey = `oidc.user:${oidcAuthority}:${oidcClientID}`
             // get the user information from the session storage
             let userSessionStorageItem = sessionStorage.getItem(userSessionStorageKey)
             // check if user information was returned
             if (!userSessionStorageItem) {
-                // since there is no user information available just send the request as is
+                // since there is no user information available, just send the request as is
                 console.warn("no user available in session storage. using unauthenticated request")
-                return request;
+                return Promise.reject("no user available")
             }
 
             // now generate a user from the session storage
             let user = User.fromStorageString(userSessionStorageItem);
 
             // now add the access token of the user to the Authorization header of the request
-            request.headers["Authorization"] = `Bearer ${user.access_token}`
+            request.headers["Authorization"] = `${user.token_type} ${user.access_token}`
             return request;
 
         },
@@ -85,17 +82,11 @@ axios
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
     <React.StrictMode>
-        <AuthProvider {...oidcConfig}>
-            <Router>
-                <Navigation/>
-                <Routes>
-                    <Route path={"/"} element={<LandingPage/>}></Route>
-                    <Route path={"/callback"} element={<LoginCallback/>}></Route>
-                    <Route path={"/login"} element={<LoginPage/>}></Route>
-                    <Route path={"/cash-register"} element={<CashRegister/>}></Route>
-                </Routes>
-            </Router>
-        </AuthProvider>
+        <Router>
+            <AuthProvider {...oidcConfig}>
+                <App></App>
+            </AuthProvider>
+        </Router>
     </React.StrictMode>
 );
 
