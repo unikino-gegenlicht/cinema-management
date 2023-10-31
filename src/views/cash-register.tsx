@@ -470,8 +470,8 @@ export default function CashRegister() {
             if (!sumUpAffiliateKey || !sumUpAppID) {
                 setErrorModalContent(
                     <div>
-                        <p className={"has-text-centered has-text-weight-bold"}>{t("sumup.missing-data.title")}</p>
-                        <p>{t("sumup.missing-data.description")}</p>
+                        <p className={"has-text-centered has-text-weight-bold"}>{t("sumup.errors.missing-data.title")}</p>
+                        <p>{t("sumup.errors.missing-data.description")}</p>
                     </div>
                 )
                 setShowErrorModal(true);

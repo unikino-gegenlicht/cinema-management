@@ -24,7 +24,7 @@ export default function Navigation() {
         return (
             <nav className={`navbar is-dark is-fixed-top`} role={"navigation"} aria-label={"main navigation"}>
                 <div className={"navbar-brand has-background-dark"}>
-                    <a className={"navbar-item"} href={"/"}>
+                    <a className={"navbar-item"} onClick={() => navigate("/")}>
                         <img alt={"favicon"} src={"/images/favicon-32x32.png"} height={28} style={{color: "#ffdd00"}}/>
                     </a>
 

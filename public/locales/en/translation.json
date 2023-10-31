@@ -54,5 +54,8 @@
       }
     },
     "email-prompt": "E-Mail address for receipt:"
+  },
+  "statistics": {
+    "title": "Statistics"
   }
 }

@@ -63,5 +63,8 @@
       }
     },
     "email-prompt": "E-Mail Adresse für Beleg"
+  },
+  "statistics": {
+    "title": "Statistiken"
   }
 }
