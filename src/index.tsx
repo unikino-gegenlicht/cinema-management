@@ -38,7 +38,7 @@ const oidcConfig = {
     onSigninCallback: (user: User | void) => {
         window.history.replaceState({}, document.title, window.location.pathname)
     },
-    userStore: new WebStorageStateStore({store: window.sessionStorage})
+    userStore: new WebStorageStateStore({store: window.localStorage})
 }
 
 /**
@@ -54,7 +54,7 @@ axios
             // generate the session storage key to get the user information
             let userSessionStorageKey = `oidc.user:${oidcAuthority}:${oidcClientID}`
             // get the user information from the session storage
-            let userSessionStorageItem = sessionStorage.getItem(userSessionStorageKey)
+            let userSessionStorageItem = localStorage.getItem(userSessionStorageKey)
             // check if user information was returned
             if (!userSessionStorageItem) {
                 // since there is no user information available, just send the request as is

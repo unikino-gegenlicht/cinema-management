@@ -3,8 +3,14 @@ import {useEffect, useState} from "react";
 import {Article} from "../types/article";
 import axios from "axios";
 import {SaleStatistics} from "../types/statistics";
+import {Chart as ChartJS, registerables} from "chart.js";
+import {Bar} from "react-chartjs-2";
+import {toast} from "bulma-toast";
+import {CashRegister as Register} from "../types/cash-register";
+
 
 export default function Statistics() {
+    ChartJS.register(...registerables);
     /**
      * Get the translation hook
      */
@@ -14,29 +20,257 @@ export default function Statistics() {
      * Create some state variables
      */
     const [accessingAPI, setAccessingAPI] = useState(false);
-    const [articles, setArticles] = useState<Article[]>([]);
-    const [statistics, setStatistics] = useState<SaleStatistics|undefined>(undefined);
-    const [registerFilter, setRegisterFilter] = useState<string|undefined>(undefined);
-    const [fromFilter, setFromFilter] = useState<Date|undefined>(undefined);
-    const [untilFilter, setUntilFilter] = useState<Date|undefined>(undefined);
+    const [articles, setArticles] = useState<Article[] | undefined>(undefined);
+    const [statistics, setStatistics] = useState<{
+        labels: string[],
+        datasets: { label: string, data: number[], backgroundColor: string }[]
+    } | null>(null);
+    const [registerFilter, setRegisterFilter] = useState<string | undefined>(undefined);
+    const [fromFilter, setFromFilter] = useState<Date | undefined | null>(undefined);
+    const [loadedStatistics, setLoadedStatistics] = useState(false)
+    const [untilFilter, setUntilFilter] = useState<Date | undefined |null>(undefined);
+    // this state stores the cash registers that are available for making transactions in
+    const [registers, setRegisters] = useState<Register[] | undefined>(undefined);
+
+    useEffect(() => {
+        // now access the api and load the registers from the server if they are still undefined
+        if (articles === undefined) {
+            setAccessingAPI(true)
+            axios
+                .get("/api/items")
+                .then((response) => {
+                    // now check the response code of the server
+                    switch (response.status) {
+                        case 200:
+                            // the request returned a list of registers
+                            setArticles(response.data)
+                            break
+                        case 204:
+                            // the server has no registers configured. create a warning message
+                            console.warn("no articles found on backend")
+                            toast({
+                                message: t("cash-register.errors.no-articles"),
+                                type: "is-warning",
+                                position: "center",
+                                dismissible: true,
+                                single: true,
+                                closeOnClick: true,
+                                duration: 5000,
+                                animate: {
+                                    in: 'fadeIn',
+                                    out: 'fadeOut'
+                                }
+                            })
+                            break
+                        default:
+                            // the server responded with an unexpected response code
+                            console.error("unexpected response code received while pulling articles")
+                            toast({
+                                message: t("errors.unexpected-response-code"),
+                                type: "is-danger",
+                                position: "center",
+                                dismissible: false,
+                                single: true,
+                                closeOnClick: false,
+                                duration: 5000,
+                                animate: {
+                                    in: 'fadeIn',
+                                    out: 'fadeOut'
+                                }
+                            })
+                    }
+                })
+                .catch((reason) => {
+                    console.error("failed to get articles from server", reason)
+                    toast({
+                        message: t("errors.request-failure") + `<br>${reason.message}`,
+                        type: "is-danger",
+                        position: "center",
+                        dismissible: false,
+                        single: true,
+                        closeOnClick: false,
+                        duration: 5000,
+                        animate: {
+                            in: 'fadeIn',
+                            out: 'fadeOut'
+                        }
+                    })
+                })
+                .finally(() => {
+                    setAccessingAPI(false)
+                })
+        }
+    }, [setArticles, articles, t]);
+
+    useEffect(() => {
+        // now access the api and load the registers from the server if they are still undefined
+        if (registers === undefined) {
+            setAccessingAPI(true)
+            axios
+                .get("/api/registers")
+                .then((response) => {
+                    // now check the response code of the server
+                    switch (response.status) {
+                        case 200:
+                            // the request returned a list of registers
+                            setRegisters(response.data)
+                            break
+                        case 204:
+                            // the server has no registers configured. create a warning message
+                            console.warn("no registers found on backend")
+                            toast({
+                                message: t("cash-register.errors.no-registers"),
+                                type: "is-danger",
+                                position: "center",
+                                dismissible: true,
+                                single: true,
+                                closeOnClick: true,
+                                duration: 5000,
+                                animate: {
+                                    in: 'fadeIn',
+                                    out: 'fadeOut'
+                                }
+                            })
+                            break
+                        default:
+                            // the server responded with an unexpected response code
+                            console.error("unexpected response code received while pulling registers")
+                            toast({
+                                message: t("errors.unexpected-response-code"),
+                                type: "is-danger",
+                                position: "center",
+                                dismissible: false,
+                                single: true,
+                                closeOnClick: false,
+                                duration: 5000,
+                                animate: {
+                                    in: 'fadeIn',
+                                    out: 'fadeOut'
+                                }
+                            })
+                    }
+                })
+                .catch((reason) => {
+                    console.error("failed to get registers from server", reason)
+                    toast({
+                        message: t("errors.request-failure") + `<br>${reason.message}`,
+                        type: "is-danger",
+                        position: "center",
+                        dismissible: false,
+                        single: true,
+                        closeOnClick: false,
+                        duration: 5000,
+                        animate: {
+                            in: 'fadeIn',
+                            out: 'fadeOut'
+                        }
+                    })
+                })
+                .finally(() => {
+                    setAccessingAPI(false)
+                })
+        }
+    }, [setRegisters, registers, t]);
 
     /**
      * Now use effects to pull the statistics if any of the filters change
      */
     useEffect(() => {
+        console.log("changed filters")
         axios
             .get("/api/statistics/sales", {
                 params: {
                     register: registerFilter,
                     from: fromFilter?.toISOString(),
-                    until: fromFilter?.toISOString()
+                    until: untilFilter?.toISOString()
                 }
             })
             .then((response) => {
-                setStatistics(response.data)
+                let {knownArticles, customArticles}: SaleStatistics = response.data
+                let labels: string[] = []
+                Array.from(Object.keys(knownArticles)).forEach((label) => {
+                    if (articles) {
+                        let article = articles.find(({id}) => id === label)
+                        if (article) {
+                            console.log(article.name)
+                            labels.push(article.name)
+                            return
+                        } else {
+                            labels.push(label)
+                            return;
+                        }
+                    } else {
+                        labels.push(label)
+                        return;
+                    }
+                })
+                console.log(labels)
+                let knownObjects = {
+                    label: 'Standard-Artikel',
+                    data: Array.from(Object.values(knownArticles)),
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                }
+                let customObjects = {
+                    label: 'Benutzerdefinierte Artikel',
+                    data: [labels.map(() => null), Array.from(Object.values(customArticles))].flat(),
+                    backgroundColor: 'rgba(146,255,99,0.5)',
+                }
+                Array.from(Object.keys(customArticles)).forEach((label) => {
+                    labels.push(label)
+                })
+                setStatistics({labels, datasets: [knownObjects, customObjects]})
+                setLoadedStatistics(true)
             })
-    }, [registerFilter, fromFilter, untilFilter])
+    }, [registerFilter, untilFilter, fromFilter, articles])
 
+
+    useEffect(() => {
+        if (!loadedStatistics) {
+            axios
+                .get("/api/statistics/sales", )
+                .then((response) => {
+                    let {knownArticles, customArticles}: SaleStatistics = response.data
+                    let labels: string[] = []
+                    Array.from(Object.keys(knownArticles)).forEach((label) => {
+                        if (articles) {
+                            let article = articles.find(({id}) => id === label)
+                            if (article) {
+                                console.log(article.name)
+                                labels.push(article.name)
+                                return
+                            } else {
+                                labels.push(label)
+                                return;
+                            }
+                        } else {
+                            labels.push(label)
+                            return;
+                        }
+                    })
+                    console.log(labels)
+                    let knownObjects = {
+                        label: 'Standard-Artikel',
+                        data: Array.from(Object.values(knownArticles)),
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    }
+                    let customObjects = {
+                        label: 'Benutzerdefinierte Artikel',
+                        data: [labels.map(() => null), Array.from(Object.values(customArticles))].flat(),
+                        backgroundColor: 'rgba(146,255,99,0.5)',
+                    }
+                    Array.from(Object.keys(customArticles)).forEach((label) => {
+                        labels.push(label)
+                    })
+                    setStatistics({labels, datasets: [knownObjects, customObjects]})
+                    setLoadedStatistics(true)
+                })
+        }
+
+    })
+
+    if (!statistics) {
+        return <div></div>;
+    }
     return (<div className={"mt-1"}>
         <h1 className={"title is-size-3 has-text-centered"}>{t(`statistics.title`)}</h1>
         <div className={"field is-horizontal p-1"}>
@@ -45,13 +279,18 @@ export default function Statistics() {
             </div>
             <div className={"field-body"}>
                 <div className={"field"}>
-                    <p className={"control is-expanded"}>
+                    <div className={"control is-expanded"}>
                         <div className={"select is-fullwidth"}>
-                            <select>
+                            <select onChange={(event) => setRegisterFilter(event.target.value)}>
                                 <option value={""}>Alle</option>
+                                {
+                                    registers?.map(({id, name}) => {
+                                        return <option value={id}>{name}</option>;
+                                    })
+                                }
                             </select>
                         </div>
-                    </p>
+                    </div>
                 </div>
             </div>
             <div className={"field-label is-normal"}>
@@ -60,7 +299,7 @@ export default function Statistics() {
             <div className={"field-body"}>
                 <div className={"field"}>
                     <p className={"control is-expanded"}>
-                        <input className={"input"} type={"datetime-local"}/>
+                        <input className={"input"} type={"datetime-local"} onChange={(event) => {setFromFilter(event.target.valueAsDate)}}/>
                     </p>
                 </div>
             </div>
@@ -70,10 +309,13 @@ export default function Statistics() {
             <div className={"field-body"}>
                 <div className={"field"}>
                     <p className={"control is-expanded"}>
-                        <input className={"input"} type={"datetime-local"}/>
+                        <input className={"input"} type={"datetime-local"} onChange={(event) => {setUntilFilter(event.target.valueAsDate)}}/>
                     </p>
                 </div>
             </div>
+        </div>
+        <div>
+            <Bar options={{"responsive": true, skipNull: true}} data={statistics}/>
         </div>
     </div>);
 }

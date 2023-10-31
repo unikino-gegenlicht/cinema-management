@@ -4,7 +4,6 @@
   "cashRegister": "Cash Registers",
   "welcome": "Welcome",
   "errors": {
-    "tokenRenewFailed": "Unable to renew your authentication details. You'll be logged out in one minute",
     "tokenExpired": "Your access token has expired. Please reauthenticate."
   },
   "login": {
@@ -35,11 +34,25 @@
       "item-removed": "Item removed from bill",
       "title": "Bill",
       "total": "Total",
-      "paid": "Paid",
+      "cash-payment": "Cash Payment",
+      "card-payment": "Card Payment",
       "clear": "Clear Bill",
       "id": "Bill ID"
     },
     "select-register": "Please select a register",
     "articles": "Articles"
+  },
+  "sumup": {
+    "errors": {
+      "missing-data": {
+        "title": "Card payments not set up",
+        "description": "Due to missing values, accepting card payments using SumUp is unavailable"
+      },
+      "payment-failed": {
+        "title": "Failure while processing transaction",
+        "description": "The SumUp App reported an error during the transaction processing"
+      }
+    },
+    "email-prompt": "E-Mail address for receipt:"
   }
 }

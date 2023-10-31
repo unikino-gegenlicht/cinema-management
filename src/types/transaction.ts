@@ -1,9 +1,13 @@
+import {Article} from "./article";
+
 export type Transaction = {
-    ID?: string,
+    ID: string,
     at: string,
     amount: number,
     title: string,
     description: string,
     register: string,
-    items?: string[]
+    items?: string[],
+    customItems?: Article[],
+    paymentType?: "cash" | "card"
 }

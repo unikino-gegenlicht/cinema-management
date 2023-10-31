@@ -6,5 +6,5 @@ export type Article = {
     name: string,
     price: number,
     icon: string,
-    flags?: string[]
+    isLocal?: boolean
 }

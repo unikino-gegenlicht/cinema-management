@@ -4,8 +4,15 @@
   "cashRegister": "Kassen",
   "welcome": "Herzlich Willkommen",
   "errors": {
-    "tokenRenewFailed": "Die Aktualisierung ihrer Authentifizierung ist fehlgeschlagen. Sie werden in einer Minute abgemeldet.",
-    "tokenExpired": "Ihre Anmeldedaten sind abgelaufen. Bitte authentifizieren sie sich erneut."
+    "tokenExpired": "Ihre Anmeldedaten sind abgelaufen. Bitte authentifizieren sie sich erneut.",
+    "unexpected-response-code": "Der Server hat mit einem unerwarteten HTTP Code geantwortet. Bitte kontaktieren sie ihren Administrator",
+    "request-failure": "Es kam zu einem unerwarteten Kommunikationsfehler mit dem Server. Bitte kontaktieren Sie ihren Administrator",
+    "card-payment": {
+      "data-missing": "Kartenzahlungen sind aktuell nicht eingerichtet."
+    },
+    "modal": {
+      "title": "Ein Fehler ist aufgetreten"
+    }
   },
   "login": {
     "authStates": {
@@ -27,19 +34,34 @@
   },
   "cash-register": {
     "errors": {
-      "general": "Es ist ein Fehler beim Laden der Artikel aufgetreten.<br>Bitte benutzen Sie lokale Artikel und kontaktieren Sie ihren Administrator.",
+      "general": "Es ist ein Fehler beim Laden aufgetreten.<br>Bitte kontaktieren Sie ihren Administrator.",
       "no-items": "Keine Artikel auf dem Server gefunden.<br>Bitte benutzen Sie lokale Artikel oder fügen sie welche auf dem Server hinzu.",
+      "no-registers": "Es sind aktuell keine Kassen definiert.<br>Bitte erstellen Sie eine, oder kontaktieren Sie ihren Administrator",
       "unexpected-response": "Unerwarteter Status Code in Antwort.<br>"
     },
     "bill": {
       "item-removed": "Artikel entfernt",
       "title": "Bon",
       "total": "Gesamtsumme",
-      "paid": "Bezahlt",
+      "cash-payment": "Barzahlung",
+      "card-payment": "Kartenzahlung",
       "clear": "Bon leeren",
       "id": "Bonnummer"
     },
     "select-register": "Bitte wählen Sie eine Kasse aus",
     "articles": "Artikel"
+  },
+  "sumup": {
+    "errors": {
+      "missing-data": {
+        "title": "Kartenzahlung nicht eingerichtet",
+        "description": "Aufgrund von fehlenden Werten für die API-Aufrufe zur SumUp App ist die Kartenzahlung aktuell nicht verfügbar"
+      },
+      "payment-failed": {
+        "title": "Fehler während der Transaktionsverarbeitung",
+        "description": "Die SumUp App hat einen Fehler bei der Verarbeitung der Kartenzahlung gemeldet"
+      }
+    },
+    "email-prompt": "E-Mail Adresse für Beleg"
   }
 }

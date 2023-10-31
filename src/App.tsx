@@ -19,9 +19,9 @@ export default function App() {
             console.warn("unable to silently renew expiring access token")
             auth.removeUser()
             toast({
-                message: t(`errors.tokenRenewFailed`),
+                message: t(`errors.tokenExpired`),
                 type: "is-warning",
-                position: "center",
+                position: "top-center",
                 dismissible: false,
                 single: true,
                 duration: 5000,

@@ -5,6 +5,16 @@
 
 $primary: #ffdd00;
 
+.modal-background {
+  background-color: rgba(10, 10, 10, .86) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .modal-card-body {
+    background-color: rgb(36, 36, 36) !important;
+  }
+}
+
 @import "~bulma/bulma";
 @import "~bulma-prefers-dark/bulma-prefers-dark";
 @import "~@fortawesome/fontawesome-free/scss/fontawesome";
