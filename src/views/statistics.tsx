@@ -220,7 +220,7 @@ export default function Statistics() {
                 let knownObjects = {
                     label: 'Standard-Artikel',
                     data: Array.from(Object.values(knownArticles)),
-                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    backgroundColor: 'rgba(255,221,0,0.5)',
                 }
                 let customObjects = {
                     label: 'Benutzerdefinierte Artikel',

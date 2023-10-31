@@ -37,7 +37,8 @@
       "general": "Es ist ein Fehler beim Laden aufgetreten.<br>Bitte kontaktieren Sie ihren Administrator.",
       "no-items": "Keine Artikel auf dem Server gefunden.<br>Bitte benutzen Sie lokale Artikel oder fügen sie welche auf dem Server hinzu.",
       "no-registers": "Es sind aktuell keine Kassen definiert.<br>Bitte erstellen Sie eine, oder kontaktieren Sie ihren Administrator",
-      "unexpected-response": "Unerwarteter Status Code in Antwort.<br>"
+      "unexpected-response": "Unerwarteter Status Code in Antwort.<br>",
+      "transaction-store-failure": "Aufgrund einer unerwarteten Antwort vom Server konnte die aktuelle Transaktion nicht gespeichert werden.<br>Bitte wenden Sie sich an ihren Administrator"
     },
     "bill": {
       "item-removed": "Artikel entfernt",
@@ -49,7 +50,8 @@
       "id": "Bonnummer"
     },
     "select-register": "Bitte wählen Sie eine Kasse aus",
-    "articles": "Artikel"
+    "articles": "Artikel",
+    "transaction-stored": "Transaktion gespeichert"
   },
   "sumup": {
     "errors": {

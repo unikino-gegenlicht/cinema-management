@@ -9,6 +9,8 @@ import {AuthProvider} from "react-oidc-context";
 import axios from "axios";
 import {BrowserRouter as Router} from "react-router-dom";
 import App from "./App";
+import {toast} from "bulma-toast";
+import {t} from "i18next";
 
 /**
  * This part configures the OpenID Connect configuration for the 'react-oidc-context'

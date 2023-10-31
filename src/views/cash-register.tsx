@@ -284,7 +284,22 @@ export default function CashRegister() {
                 break
             case "success":
                 // the handling of the transaction was successful.
-                // TODO: Issue notification about successful handling
+
+                // load the transaction from the local storage
+                let rawTransaction = localStorage.getItem("current-transaction")
+                if (rawTransaction === null) {
+                    console.warn("unable to load transaction from local storage")
+                    return
+                }
+                let transaction: Transaction = JSON.parse(rawTransaction)
+                // now extract the id given by sumup for this transaction
+                let sumupTransactionID = queryParameters.get("smp-tx-code")
+                if (sumupTransactionID === null) {
+                    console.error("no transaction id provided by sumup")
+                    return
+                }
+                // now store the transaction together with the transaction id
+                storeTransaction(transaction, sumupTransactionID)
                 break
         }
         return () => {
@@ -463,6 +478,9 @@ export default function CashRegister() {
         }
         // since the transaction is now prepared, set the payment type on the transaction
         transaction.paymentType = paymentType
+        // now write the transaction to the local storage to allow reading it when receiving the callback
+        localStorage.setItem("current-transaction", JSON.stringify(transaction))
+
         // if the payment type is a card payment, try to open up the SumUp application
         // to let it handle the rest of the payment process
         if (transaction.paymentType === "card") {
@@ -503,9 +521,82 @@ export default function CashRegister() {
             localStorage.setItem("current-register", JSON.stringify(currentRegister))
         }
 
+        if (paymentType === "cash") {
+            storeTransaction(transaction, undefined)
+        }
+
 
     }
 
+    /**
+     * This function stores a transaction in the backend of the management portal
+     * @param tx The transaction that shall be stored
+     * @param externalID a external id that is supplied by a payment provider
+     */
+    function storeTransaction(tx: Transaction, externalID: string | undefined) {
+        // add the external payment id
+        tx.externalPaymentID = externalID
+
+        // now send it to the server
+        axios
+            .post("/api/transactions", tx)
+            .then((response) => {
+                switch (response.status) {
+                    case 200:
+                    case 201:
+                        toast({
+                            message: t(`cash-register.transaction-stored`),
+                            type: "is-success",
+                            position: "top-center",
+                            dismissible: false,
+                            single: true,
+                            closeOnClick: true,
+                            duration: 1500,
+                            animate: {
+                                in: 'fadeIn',
+                                out: 'fadeOut'
+                            }
+                        })
+                        // now remove the current bill id from the session storage
+                        sessionStorage.removeItem("billID")
+                        // now get a new bill id and start a new transaction by setting the bill items to an empty array
+                        setBillItems([])
+                        startTransaction()
+                        break
+                    default:
+                        // since the server did not respond with the correct status code, send an error message
+                        toast({
+                            message: t(`cash-register.transaction-store-failure`),
+                            type: "is-danger",
+                            position: "center",
+                            dismissible: false,
+                            single: true,
+                            closeOnClick: true,
+                            duration: 1500,
+                            animate: {
+                                in: 'fadeIn',
+                                out: 'fadeOut'
+                            }
+                        })
+                }
+            })
+            .catch((error) => {
+                toast({
+                    message: t("errors.request-failure") + `<br>${error.message}`,
+                    type: "is-danger",
+                    position: "center",
+                    dismissible: false,
+                    single: true,
+                    closeOnClick: false,
+                    duration: 5000,
+                    animate: {
+                        in: 'fadeIn',
+                        out: 'fadeOut'
+                    }
+                })
+            })
+
+    }
 
     return (
         <div>

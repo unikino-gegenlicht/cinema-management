@@ -28,7 +28,9 @@
     "errors": {
       "general": "An error occurred while loading the articles from the server.<br>Please use local items and contact your administrator.",
       "no-items": "There are no items configured on the server.<br>Please use local items or add some to the server",
-      "unexpected-response": "Unexpected response code received.<br>Please use local items."
+      "no-registers": "There are no registers configured on the server.<br>Please create one or contact your administrator",
+      "unexpected-response": "Unexpected response code received.<br>Please use local items.",
+      "transaction-store-failure": "Due to an unexpected response status code the transaction storage was unsuccessful.<br>Please contact your administrator if this problem persists"
     },
     "bill": {
       "item-removed": "Item removed from bill",
@@ -40,7 +42,8 @@
       "id": "Bill ID"
     },
     "select-register": "Please select a register",
-    "articles": "Articles"
+    "articles": "Articles",
+    "transaction-stored": "Transaction saved"
   },
   "sumup": {
     "errors": {
