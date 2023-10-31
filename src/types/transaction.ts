@@ -10,4 +10,5 @@ export type Transaction = {
     items?: string[],
     customItems?: Article[],
     paymentType?: "cash" | "card"
+    externalPaymentID?: string
 }
