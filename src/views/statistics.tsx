@@ -220,12 +220,12 @@ export default function Statistics() {
                 let knownObjects = {
                     label: 'Standard-Artikel',
                     data: Array.from(Object.values(knownArticles)),
-                    backgroundColor: 'rgba(255,221,0,0.5)',
+                    backgroundColor: 'rgba(255,221,0,0.75)',
                 }
                 let customObjects = {
                     label: 'Benutzerdefinierte Artikel',
                     data: [labels.map(() => null), Array.from(Object.values(customArticles))].flat(),
-                    backgroundColor: 'rgba(146,255,99,0.5)',
+                    backgroundColor: 'rgba(146,255,99,0.75)',
                 }
                 Array.from(Object.keys(customArticles)).forEach((label) => {
                     labels.push(label)
@@ -263,12 +263,12 @@ export default function Statistics() {
                     let knownObjects = {
                         label: 'Standard-Artikel',
                         data: Array.from(Object.values(knownArticles)),
-                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        backgroundColor: 'rgba(255,221,0,0.75)',
                     }
                     let customObjects = {
                         label: 'Benutzerdefinierte Artikel',
                         data: [labels.map(() => null), Array.from(Object.values(customArticles))].flat(),
-                        backgroundColor: 'rgba(146,255,99,0.5)',
+                        backgroundColor: 'rgba(146,255,99,0.75)',
                     }
                     Array.from(Object.keys(customArticles)).forEach((label) => {
                         labels.push(label)
