@@ -1,5 +1,5 @@
 import {useTranslation} from "react-i18next";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {Article} from "../types/article";
 import axios from "axios";
 import {SaleStatistics} from "../types/statistics";
@@ -21,16 +21,17 @@ export default function Statistics() {
      */
     const [accessingAPI, setAccessingAPI] = useState(false);
     const [articles, setArticles] = useState<Article[] | undefined>(undefined);
-    const [statistics, setStatistics] = useState<{
-        labels: string[],
-        datasets: { label: string, data: number[], backgroundColor: string }[]
-    } | null>(null);
-    const [registerFilter, setRegisterFilter] = useState<string | undefined>(undefined);
-    const [fromFilter, setFromFilter] = useState<Date | undefined | null>(undefined);
-    const [loadedStatistics, setLoadedStatistics] = useState(false)
-    const [untilFilter, setUntilFilter] = useState<Date | undefined |null>(undefined);
+    const [statistics, setStatistics] = useState<{labels: string[],datasets: { label: string, data: number[], backgroundColor: string }[]} | null>(null);
     // this state stores the cash registers that are available for making transactions in
     const [registers, setRegisters] = useState<Register[] | undefined>(undefined);
+    const [loadedStatistics, setLoadedStatistics] = useState(false)
+
+    /**
+     * create some references to html inputs to use their values in requests
+     */
+    const registerSelection = useRef<HTMLSelectElement|null>(null);
+    const fromFilterInput = useRef<HTMLInputElement|null>(null)
+    const untilFilterInput = useRef<HTMLInputElement|null>(null)
 
     useEffect(() => {
         // now access the api and load the registers from the server if they are still undefined
@@ -175,14 +176,25 @@ export default function Statistics() {
     /**
      * Now use effects to pull the statistics if any of the filters change
      */
-    useEffect(() => {
-        console.log("changed filters")
+    function updateStatistics() {
+        let fromDateUnix = fromFilterInput.current?.valueAsNumber
+        let fromDateFilter: string|undefined = undefined;
+        if (fromDateUnix) {
+            let d = new Date(fromDateUnix)
+            fromDateFilter = d.toISOString()
+        }
+        let untilDateUnix = untilFilterInput.current?.valueAsNumber
+        let untilDateFilter: string|undefined = undefined;
+        if (untilDateUnix) {
+            let d = new Date(untilDateUnix)
+            untilDateFilter = d.toISOString()
+        }
         axios
             .get("/api/statistics/sales", {
                 params: {
-                    register: registerFilter,
-                    from: fromFilter?.toISOString(),
-                    until: untilFilter?.toISOString()
+                    register: registerSelection.current?.value,
+                    from: fromDateFilter,
+                    until: untilDateFilter
                 }
             })
             .then((response) => {
@@ -221,11 +233,11 @@ export default function Statistics() {
                 setStatistics({labels, datasets: [knownObjects, customObjects]})
                 setLoadedStatistics(true)
             })
-    }, [registerFilter, untilFilter, fromFilter, articles])
+    }
 
 
     useEffect(() => {
-        if (!loadedStatistics) {
+        if (!loadedStatistics && articles) {
             axios
                 .get("/api/statistics/sales", )
                 .then((response) => {
@@ -266,12 +278,12 @@ export default function Statistics() {
                 })
         }
 
-    })
+    }, [articles])
 
     if (!statistics) {
         return <div></div>;
     }
-    return (<div className={"mt-1"}>
+    return (<div className={"m-1"}>
         <h1 className={"title is-size-3 has-text-centered"}>{t(`statistics.title`)}</h1>
         <div className={"field is-horizontal p-1"}>
             <div className={"field-label is-normal"}>
@@ -281,7 +293,7 @@ export default function Statistics() {
                 <div className={"field"}>
                     <div className={"control is-expanded"}>
                         <div className={"select is-fullwidth"}>
-                            <select onChange={(event) => setRegisterFilter(event.target.value)}>
+                            <select ref={registerSelection}>
                                 <option value={""}>Alle</option>
                                 {
                                     registers?.map(({id, name}) => {
@@ -299,7 +311,7 @@ export default function Statistics() {
             <div className={"field-body"}>
                 <div className={"field"}>
                     <p className={"control is-expanded"}>
-                        <input className={"input"} type={"datetime-local"} onChange={(event) => {setFromFilter(event.target.valueAsDate)}}/>
+                        <input className={"input"} ref={fromFilterInput} type={"datetime-local"}/>
                     </p>
                 </div>
             </div>
@@ -309,11 +321,14 @@ export default function Statistics() {
             <div className={"field-body"}>
                 <div className={"field"}>
                     <p className={"control is-expanded"}>
-                        <input className={"input"} type={"datetime-local"} onChange={(event) => {setUntilFilter(event.target.valueAsDate)}}/>
+                        <input className={"input"} ref={untilFilterInput} type={"datetime-local"}/>
                     </p>
                 </div>
             </div>
         </div>
+        <button className={"button is-info is-fullwidth"} onClick={() => updateStatistics()}>
+            Statistik aktualisieren
+        </button>
         <div>
             <Bar options={{"responsive": true, skipNull: true}} data={statistics}/>
         </div>
