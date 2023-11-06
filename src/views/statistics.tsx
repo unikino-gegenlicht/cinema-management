@@ -7,6 +7,7 @@ import {Chart as ChartJS, registerables} from "chart.js";
 import {Bar} from "react-chartjs-2";
 import {toast} from "bulma-toast";
 import {CashRegister as Register} from "../types/cash-register";
+import moment from "moment-timezone";
 
 
 export default function Statistics() {
@@ -179,15 +180,19 @@ export default function Statistics() {
     function updateStatistics() {
         let fromDateUnix = fromFilterInput.current?.valueAsNumber
         let fromDateFilter: string|undefined = undefined;
+        let timezone = moment.tz.guess(true);
         if (fromDateUnix) {
-            let d = new Date(fromDateUnix)
+            let d = moment.tz(fromDateUnix, 'UTC')
+            d = d.tz(timezone, true)
             fromDateFilter = d.toISOString()
+
         }
         let untilDateUnix = untilFilterInput.current?.valueAsNumber
         let untilDateFilter: string|undefined = undefined;
         if (untilDateUnix) {
-            let d = new Date(untilDateUnix)
-            untilDateFilter = d.toISOString()
+            let d = moment.tz(untilDateUnix, 'UTC')
+            d = d.tz(timezone, true)
+            untilDateFilter =  moment(d).toISOString()
         }
         axios
             .get("/api/statistics/sales", {
