@@ -17,6 +17,8 @@
     "chart.js": "^4.4.0",
     "custom-protocol-check": "^1.4.0",
     "http-proxy-middleware": "^2.0.6",
+    "moment": "^2.29.4",
+    "moment-timezone": "^0.5.43",
     "oidc-client-ts": "^2.3.0",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",

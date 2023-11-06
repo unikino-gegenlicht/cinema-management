@@ -8,6 +8,7 @@ import {toast} from "bulma-toast";
 import {useTranslation} from "react-i18next";
 import {Icon} from "@iconify/react";
 import validator from "validator";
+import moment from "moment";
 
 
 export default function CashRegister() {
@@ -32,15 +33,18 @@ export default function CashRegister() {
     const [accessingAPI, setAccessingAPI] = useState(false);
     // this state stores the cash registers that are available for making transactions in
     const [registers, setRegisters] = useState<Register[] | undefined>(undefined);
+    const [loadedRegisters, setLoadedRegisters] = useState(false);
     // this state stores the currently active register
     const [currentRegister, setCurrentRegister] = useState<Register | undefined>(undefined);
     // this states store all articles
     const [articles, setArticles] = useState<Article[] | undefined>(undefined);
+    const [loadedArticles, setLoadedArticles] = useState(false);
     const [localArticles, setLocalArticles] = useState<Article[] | undefined>(undefined);
     // this state stores all current items that are listed on the bill
     const [billItems, setBillItems] = useState<Article[]>([]);
     // this state stores the current bill ID which is used to identify the bill in card payments
     const [billID, setBillID] = useState<string | undefined>(undefined);
+    const [loadedBillID, setLoadedBillID] = useState(false);
     // this state stores the current bill amount
     const [billAmount, setBillAmount] = useState(0.00);
     // this state stores if the error modal of the page shall be enabled or not
@@ -57,7 +61,7 @@ export default function CashRegister() {
      */
     useEffect(() => {
         // now access the api and load the registers from the server if they are still undefined
-        if (registers === undefined) {
+        if (registers === undefined && !loadedRegisters) {
             setAccessingAPI(true)
             axios
                 .get("/api/registers")
@@ -65,7 +69,8 @@ export default function CashRegister() {
                     // now check the response code of the server
                     switch (response.status) {
                         case 200:
-                            // the request returned a list of registers
+                            // the request returned a list of registers#
+                            setLoadedRegisters(true)
                             setRegisters(response.data)
                             break
                         case 204:
@@ -123,14 +128,14 @@ export default function CashRegister() {
                     setAccessingAPI(false)
                 })
         }
-    }, [setRegisters]);
+    }, [setRegisters, registers, t]);
 
     /**
      * This effect loads the available articles from the server
      */
     useEffect(() => {
         // now access the api and load the registers from the server if they are still undefined
-        if (articles === undefined) {
+        if (articles === undefined && !loadedArticles) {
             setAccessingAPI(true)
             axios
                 .get("/api/items")
@@ -139,6 +144,7 @@ export default function CashRegister() {
                     switch (response.status) {
                         case 200:
                             // the request returned a list of registers
+                            setLoadedArticles(true)
                             setArticles(response.data)
                             break
                         case 204:
@@ -196,7 +202,7 @@ export default function CashRegister() {
                     setAccessingAPI(false)
                 })
         }
-    }, [setArticles]);
+    }, [setArticles, articles, t]);
 
     /**
      * This effect loads the available local articles from the server
@@ -219,7 +225,11 @@ export default function CashRegister() {
      * This effect loads the bill ID on startup
      */
     useEffect(() => {
-        startTransaction()
+        if (billID === undefined && !loadedBillID) {
+            setLoadedBillID(true)
+            startTransaction()
+        }
+
     })
 
     /**
@@ -464,7 +474,7 @@ export default function CashRegister() {
             register: currentRegister.id,
             items: billItems.filter((article) => !article.isLocal).map(({id}) => id),
             customItems: billItems.filter((article) => article.isLocal),
-            at: new Date().toISOString()
+            at: moment().toISOString()
         }
     }
 
@@ -502,7 +512,7 @@ export default function CashRegister() {
             sumUpParameter.set("total", billAmount.toFixed(2))
             sumUpParameter.set("amount", billAmount.toFixed(2))
             sumUpParameter.set("currency", "EUR")
-            sumUpParameter.set("title", "Unikino GEGENLICHT")
+            sumUpParameter.set("title", "Verkauf Unikino GEGENLICHT")
             sumUpParameter.set("skip-screen-success", "true")
             sumUpParameter.set("foreign-tx-id", transaction.ID)
             sumUpParameter.set("callback", `${window.location.toString()}`)
