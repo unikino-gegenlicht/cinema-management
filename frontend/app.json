@@ -14,9 +14,13 @@
   },
   "scheme": "cmm",
   "plugins": [
-    "expo-router"
+    "expo-router",
+    "expo-localization"
   ],
   "web": {
     "bundler": "metro"
+  },
+  "splash": {
+    "image": "assets/android-adaptive.png"
   }
 }
