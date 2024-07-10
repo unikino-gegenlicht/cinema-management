@@ -1,11 +1,22 @@
 {
   "name": "Cinema Management",
   "slug": "cmm",
-  "platforms": ["ios", "android", "web"],
+  "platforms": [
+    "ios",
+    "android",
+    "web"
+  ],
   "icon": "assets/icon.png",
   "android": {
     "adaptiveIcon": {
       "foregroundImage": "assets/android-adaptive.png"
     }
+  },
+  "scheme": "cmm",
+  "plugins": [
+    "expo-router"
+  ],
+  "web": {
+    "bundler": "metro"
   }
 }
