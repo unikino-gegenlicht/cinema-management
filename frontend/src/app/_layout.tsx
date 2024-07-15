@@ -81,8 +81,6 @@ export default function Layout() {
         return null;
     }
 
-    console.log(localConfiguration === null ? 'setup/index' : 'index')
-
     return (
         <SafeAreaProvider>
             <PaperProvider theme={theme}>
