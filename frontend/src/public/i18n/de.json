@@ -1,0 +1,13 @@
+{
+    "translation": {
+        "Cancel": "Abbrechen",
+        "Done": "Fertig",
+        "Next": "Weiter",
+        "Server Address": "Server Adresse",
+        "Setup": "Einrichtung",
+        "setup-explanation": "Um die App nutzen zu können, muss diese konfiguriert werden. Dies geschieht nach der Einagbe der Server-Adresse automatisch. Hierbei wird dem Gerät eine individuelle ID zugewiesen, um über die App getätigte Transaktionen zu verfolgen. Dies kann aus Sicherheitsgründen nicht deaktiviert wreden.",
+        "requesting-document": "Autokonfiguration wird heruntergeladen",
+        "registering-device": "Gerät wird registriert"
+      }
+      
+}

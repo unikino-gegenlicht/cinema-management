@@ -1,0 +1,13 @@
+{
+    "translation": {
+        "Cancel": "Cancel",
+        "Done": "Done",
+        "Next": "Next",
+        "Server Address": "Server Address",
+        "Setup": "Setup",
+        "setup-explanation": "To start using the app you need to configure it which is done automatically after entering your server address. During the setup a unique id will be assigned to this device to keep track of transactions handled by this device. Due to security reasons this cannot be deactivated",
+        "requesting-document": "Requesting Autoconfiguration Document",
+        "registering-device": "Registering Device with your Server"
+      }
+      
+}
