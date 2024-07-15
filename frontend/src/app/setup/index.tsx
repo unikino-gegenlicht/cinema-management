@@ -10,7 +10,7 @@ export default function Setup() {
     let [serverAddress, setServerAddress] = useState('')
     let [urlValid, setUrlValid] = useState(false);
     let [configuring, setConfiguring] = useState(false);
-    let [configurationStep, setConfigurationStep] = useState('requesting-document')
+    let [configurationStep, setConfigurationStep] = useState<'requesting-document'|'registering-device'|'Done'>('requesting-document')
     let [autoconfigResponse, setAutoconfigResponse] = useState<AutoconfigurationResponse>()
 
 
@@ -40,31 +40,31 @@ export default function Setup() {
         if (configuring) {
             // TODO: Implement autoconfig in backend
             setTimeout(() => setConfigurationStep('registering-device'), 2500)
-            setTimeout(() => setConfigurationStep('done'), 5000)
+            setTimeout(() => setConfigurationStep('Done'), 5000)
             return
         }
         setConfigurationStep('requesting-document')
     }, [configuring])
 
     useEffect(() => {
-        if (configurationStep !== 'done') {
+        if (configurationStep !== 'Done') {
             return
         }
         console.log('setup done')
-        
+
     }, [configurationStep])
 
     if (configuring) {
         return (
             <View style={{ paddingHorizontal: 8, justifyContent: 'space-between', flexGrow: 1 }}>
                 <View style={{ alignItems: "center", alignContent: "center", flexGrow: 1, justifyContent: 'center'}}>
-                    <ActivityIndicator size={"large"} animating={configurationStep !== 'done'} />
+                    <ActivityIndicator size={"large"} animating={configurationStep !== 'Done'} />
                     <Text>
                         {t(configurationStep) /* i18next-extract-disable-line */}
                     </Text>
                 </View>
                 <Button mode="outlined" style={{ marginBottom: 8 }} onPress={() => setConfiguring(false)}>
-                    {configurationStep === 'done' ? t('Done') : t('Cancel')}
+                    {configurationStep === 'Done' ? t('Done') : t('Cancel')}
                 </Button>
             </View>
         )
