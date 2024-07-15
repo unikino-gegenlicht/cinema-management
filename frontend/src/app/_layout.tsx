@@ -1,29 +1,39 @@
-import { initReactI18next, useTranslation } from "react-i18next";
-import i18next from "i18next";
-import { SplashScreen, Stack } from "expo-router";
-import * as Localization from "expo-localization";
-import { useColorScheme } from "react-native";
 import { useMaterial3Theme } from "@pchmn/expo-material3-theme";
-import { MD3DarkTheme, MD3LightTheme, PaperProvider, Text, adaptNavigationTheme } from "react-native-paper";
+import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import {
     DarkTheme as NavigationDarkTheme,
     DefaultTheme as NavigationLightTheme
 } from '@react-navigation/native';
+import * as Localization from "expo-localization";
+import { SplashScreen, Stack, } from "expo-router";
+import i18next from "i18next";
+import React, { useState } from "react";
+import { initReactI18next } from "react-i18next";
+import { useColorScheme } from "react-native";
+import { MD3DarkTheme, MD3LightTheme, PaperProvider, adaptNavigationTheme } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { LocalConfigurationCtx } from "../providers/configuration";
 
-// SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync();
+
+i18next
+    .use(initReactI18next)
+    .init({
+        initImmediate: true,
+        compatibilityJSON: "v3",
+        lng: Localization.getLocales()[0].languageCode,
+        fallbackLng: 'en',
+        resources: {
+            "en": require('../public/i18n/en.json'),
+            "de": require('../public/i18n/de.json')
+        },
+    });
 
 export default function Layout() {
-    i18next
-        .use(initReactI18next)
-        .init({
-            compatibilityJSON: "v3",
-            lng: Localization.getLocales()[0].languageCode
-        });
+
 
     const colorScheme = useColorScheme();
     let material3Theme = useMaterial3Theme();
-    let { t } = useTranslation();
 
     const { LightTheme, DarkTheme } = adaptNavigationTheme({
         reactNavigationDark: NavigationDarkTheme,
@@ -52,13 +62,38 @@ export default function Layout() {
         { ...paperDarkTheme, colors: material3Theme.theme.dark } :
         { ...paperLightTheme, colors: material3Theme.theme.light }
 
-    // TODO: Move into other function
-    SplashScreen.hideAsync()
+    let [localConfiguration, setLocalConfiguration] = useState<LocalConfiguration>(undefined)
 
-    return(
+    React.useEffect(() => {
+        if (localConfiguration !== undefined) {
+            return
+        }
+        let { getItem, setItem } = useAsyncStorage('@cmm_local_config')
+        let value = getItem()
+        value.then((res) => {
+            let config: LocalConfiguration = JSON.parse(res)
+            setLocalConfiguration(config)
+        })
+    })
+
+
+    if (localConfiguration === undefined) {
+        return null;
+    }
+
+    console.log(localConfiguration === null ? 'setup/index' : 'index')
+
+    return (
         <SafeAreaProvider>
             <PaperProvider theme={theme}>
-               <Text>This works!</Text>
+                <LocalConfigurationCtx.Provider value={localConfiguration}>
+                    <Stack screenOptions={{
+                        contentStyle: { backgroundColor: theme.colors.background },
+                        headerStyle: { backgroundColor: theme.colors.primaryContainer },
+                        headerTintColor: theme.colors.primary
+                    }}>
+                    </Stack>
+                </LocalConfigurationCtx.Provider>
             </PaperProvider>
         </SafeAreaProvider>
     )
