@@ -10,12 +10,14 @@
   "android": {
     "adaptiveIcon": {
       "foregroundImage": "assets/android-adaptive.png"
-    }
+    },
+    "package": "com.gegenlicht.cmm"
   },
   "scheme": "cmm",
   "plugins": [
     "expo-router",
-    "expo-localization"
+    "expo-localization",
+    "expo-secure-store"
   ],
   "web": {
     "bundler": "metro"
